@@ -10,6 +10,10 @@ import java.util.Random;
  * @author Franco_2
  */
 public class Tabuleiro {
+    public static final int AGUA = -1;
+    public static final int LINHAS=10, COLUNAS=10;
+    
+    
     private Embarcacao matriz[][];
     private Jogador desafiante;
     private Jogador adversario;
@@ -21,6 +25,35 @@ public class Tabuleiro {
         imprime2();
     }//chamada de teste
 
+    public int acertaBarco(int linha, int coluna) {
+        if (this.matriz[linha][coluna] == null) {
+            return AGUA;
+        } else {
+            int posAcerto = posicaoDoAcerto(linha, coluna);
+            return this.matriz[linha][coluna].acertaPosicao(posAcerto) ? posAcerto : -2;
+        }
+    }
+    
+    private int posicaoDoAcerto(int linha, int coluna) {
+        final int cod = this.matriz[linha][coluna].getId();
+        final int tamEmbarc = this.matriz[linha][coluna].getTamanho();
+        int posIni = -1, posFim = 0;
+        for (int a=0; a<COLUNAS; a++) {
+            if (this.matriz[linha][a] != null) {
+                if (this.matriz[linha][a].getId() == cod) {
+                    if(posIni == -1) {
+                        posIni = a;
+                        a = COLUNAS;
+                        
+                    }
+                }
+            }
+        }
+        return coluna-posIni;
+    }
+    
+    
+    
     private void imprime2() {
         System.out.println("Matriz");
         for (int i=0;i<10;i++){ 
@@ -72,7 +105,6 @@ public class Tabuleiro {
         boolean posOk = false;
         linha = sorteia(10);
         coluna = sorteia(10-emb.getTamanho());
-        imprime2();
         posOk = posicoesValidas(linha, coluna, emb.getTamanho());
         do {
             if (posOk == false) {

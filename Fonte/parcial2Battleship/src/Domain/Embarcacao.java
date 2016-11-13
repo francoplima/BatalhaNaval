@@ -17,12 +17,20 @@ public class Embarcacao {
     public static final int FRAGATA = 3;
     public static final int SUBMARINO = 4;
     public static final int LANCHA = 5;
+    
+    private static final int PORTAAVIAO_ID = 1;
+    private static final int ENCOURACADO_ID = 2;
+    private static final int FRAGATA_ID = 3;
+    private static final int SUBMARINO_ID = 4;
+    private static final int LANCHA_ID = 5;
+    
     public static final int EMBARCACOES_DIFERENTES = 5;
     public static final int TOTAL_EMBARCACOES = 14;
     
+    private int id;
     private String nome;
     private int tamanho;
-    private int[] posicao;
+    private boolean[] posicao;
     private int vida;
     
     public Embarcacao (int embarc) throws Throwable {
@@ -39,41 +47,49 @@ public class Embarcacao {
         } else {
             finalize();
         }
+        for (int a=0; a<this.posicao.length; a++) {
+            this.posicao[a] = true;
+        }
     }
     
     private void portaAvioes() {
+        this.id = PORTAAVIAO_ID;
         this.nome = "porta-aviões";
         this.tamanho = 5;
         this.vida = 5;
-        this.posicao = new int[tamanho];
+        this.posicao = new boolean[tamanho];
     }
     
     private void encouracado() {
+        this.id = ENCOURACADO_ID;
         this.nome = "encouraçado";
         this.tamanho = 4;
         this.vida = 4;
-        this.posicao = new int[tamanho];
+        this.posicao = new boolean[tamanho];
     }
     
     private void fragata(){
+        this.id = FRAGATA_ID;
         this.nome = "fragata";
         this.tamanho = 3;
         this.vida = 3;
-        this.posicao = new int[tamanho];
+        this.posicao = new boolean[tamanho];
     }
     
     private void submarino(){
+        this.id = SUBMARINO_ID;
         this.nome = "submarino";
         this.tamanho = 2;
         this.vida = 2;
-        this.posicao = new int[tamanho];
+        this.posicao = new boolean[tamanho];
     }
     
     private void lancha(){
+        this.id = LANCHA_ID;
         this.nome = "lancha";
         this.tamanho = 1;
         this.vida = 1;
-        this.posicao = new int[tamanho];
+        this.posicao = new boolean[tamanho];
     }
 
     public String getNome() {
@@ -84,12 +100,16 @@ public class Embarcacao {
         return tamanho;
     }
 
-    public int[] getPosicao() {
-        return posicao;
+    public boolean acertaPosicao(int pos) {
+        if (this.posicao[pos] == true) {
+            this.posicao[pos] = false;
+            return true;
+        }
+        return false;
     }
-
-    public void setPosicao(int[] posicao) {
-        this.posicao = posicao;
+    
+    public int getId() {
+        return this.id;
     }
 
     public int getVida() {
