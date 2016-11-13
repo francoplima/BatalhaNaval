@@ -3,6 +3,7 @@
  */
 package Domain;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -11,26 +12,46 @@ import java.util.Random;
  */
 public class Tabuleiro {
     public static final int AGUA = -1;
+    public static final int ERRO = -2;
     public static final int LINHAS=10, COLUNAS=10;
     
+    private EmbarcacaoImpl matriz[][];
+    private ArrayList<Embarcacao> embarcacoes;
+    private Jogador jogador1;
+    private Jogador jogador2;
     
-    private Embarcacao matriz[][];
-    private Jogador desafiante;
-    private Jogador adversario;
+    public Tabuleiro() throws Throwable {
+        preencheMatriz();
+        imprime2();
+    }
     
-    public Tabuleiro() throws Throwable{
-        matriz = new Embarcacao[10][10];
+    public Tabuleiro(String nome, String ip) throws Throwable{
+        matriz = new EmbarcacaoImpl[LINHAS][COLUNAS];
+        embarcacoes = new ArrayList<>();
         //imprime(setFrota());
         preencheMatriz();
         imprime2();
+        jogador1 = new Jogador(nome, ip);
     }//chamada de teste
+    
+    public int[] embarcacoesRestantes(){
+        int[] numeroEmbarcacoes = new int[Embarcacao.EMBARCACOES_DIFERENTES];
+        for (Embarcacao a : embarcacoes) {
+            if (a.isAtivo()) {
+                numeroEmbarcacoes[a.getId()-1]+=1;
+            }
+        }
+        return numeroEmbarcacoes;
+    }
 
     public int acertaBarco(int linha, int coluna) {
         if (this.matriz[linha][coluna] == null) {
             return AGUA;
         } else {
             int posAcerto = posicaoDoAcerto(linha, coluna);
-            return this.matriz[linha][coluna].acertaPosicao(posAcerto) ? posAcerto : -2;
+            int pontosObtidos = this.matriz[linha][coluna].acertaPosicao(posAcerto);
+            jogador1.somarPontos(pontosObtidos);
+            return posAcerto+1;
         }
     }
     
@@ -84,6 +105,9 @@ public class Tabuleiro {
      */
     public int sorteia(int max) {
         Random rand = new Random();
+        if (max == 1) {
+            max++;
+        }
         int r = rand.nextInt(max);
         if (r < 0) {
             return r*-1;
@@ -100,7 +124,7 @@ public class Tabuleiro {
         return true;
     }
     
-    private void setEmbarcacao(Embarcacao emb) {
+    private Embarcacao setEmbarcacao(EmbarcacaoImpl emb) {
         int linha=0, coluna=0, controle = emb.getTamanho();
         boolean posOk = false;
         linha = sorteia(10);
@@ -117,32 +141,38 @@ public class Tabuleiro {
                 controle--;
             }
         } while(controle > 0);
+        return emb;
     }
     
     private void preencheMatriz() throws Throwable {
-        int[] controle = {1, 2, 3, 4, 5};
+        int[] controle = Embarcacao.NUMERO_EMBARCACOES;
+        int totalEmbarcacoes = Embarcacao.TOTAL_EMBARCACOES;
         
         int a=0, coluna=0, linha=0, embarc;
-        while (a < Embarcacao.TOTAL_EMBARCACOES) {
-            embarc = sorteia(Embarcacao.EMBARCACOES_DIFERENTES);
-            if (embarc == Embarcacao.PORTAAVIAO && controle[0] != 0) {
+        while (a < totalEmbarcacoes) {
+            embarc = sorteia(EmbarcacaoImpl.EMBARCACOES_DIFERENTES);
+            if (embarc == Embarcacao.PORTAAVIAO_ID && controle[0] != 0) {
                 controle[0]--;
-                setEmbarcacao(new Embarcacao(Embarcacao.PORTAAVIAO));
-            } else if (embarc == Embarcacao.ENCOURACADO && controle[1] != 0) {
+                embarcacoes.add(setEmbarcacao(new EmbarcacaoImpl(Embarcacao.PORTAAVIAO_ID)));
+            } else if (embarc == Embarcacao.ENCOURACADO_ID && controle[1] != 0) {
                 controle[1]--;
-                setEmbarcacao(new Embarcacao(Embarcacao.ENCOURACADO));
-            } else if (embarc == Embarcacao.FRAGATA && controle[2] != 0) {
+                embarcacoes.add(setEmbarcacao(new EmbarcacaoImpl(Embarcacao.ENCOURACADO_ID)));
+            } else if (embarc == Embarcacao.FRAGATA_ID && controle[2] != 0) {
                 controle[2]--;
-                setEmbarcacao(new Embarcacao(Embarcacao.FRAGATA));
-            } else if (embarc == Embarcacao.SUBMARINO && controle[3] != 0) {
+                embarcacoes.add(setEmbarcacao(new EmbarcacaoImpl(Embarcacao.FRAGATA_ID)));
+            } else if (embarc == Embarcacao.SUBMARINO_ID && controle[3] != 0) {
                 controle[3]--;
-                setEmbarcacao(new Embarcacao(Embarcacao.SUBMARINO));
-            } else if (embarc == Embarcacao.LANCHA && controle[4] != 0) {
+                embarcacoes.add(setEmbarcacao(new EmbarcacaoImpl(Embarcacao.SUBMARINO_ID)));
+            } else if (embarc == Embarcacao.LANCHA_ID && controle[4] != 0) {
                 controle[4]--;
-                setEmbarcacao(new Embarcacao(Embarcacao.LANCHA));
+                embarcacoes.add(setEmbarcacao(new EmbarcacaoImpl(Embarcacao.LANCHA_ID)));
             }
             a++;
-        }
+        } 
+    }
+    
+    public static String getEmbarcacoesNome(int cod) {
+        return EmbarcacaoImpl.getNomeEmbarcacoes(cod);
     }
     
     public int[][] setFrota() throws Throwable {
@@ -247,5 +277,25 @@ public class Tabuleiro {
         }
               
         return tab;
+    }
+    
+    
+    public int pontosJogador1() {
+        return jogador1.getPontuacao();
+    }
+    public int pontosJogador2() {
+        return jogador2.getPontuacao();
+    }
+    public String getNomeJogador1() {
+        return jogador1.getNome();
+    }
+    public String getNomeJogador2() {
+        return jogador2.getNome();
+    }
+    public String getIpJogador1() {
+        return jogador1.getIp();
+    }
+    public String getIpJogador2() {
+        return jogador2.getIp();
     }
 }
