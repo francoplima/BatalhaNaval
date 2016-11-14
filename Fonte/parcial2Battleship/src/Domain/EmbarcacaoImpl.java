@@ -24,15 +24,15 @@ public class EmbarcacaoImpl implements Embarcacao {
     private boolean ativo;
     
     public EmbarcacaoImpl (int embarc) throws Throwable {
-        if (embarc == PORTAAVIAO) {
+        if (embarc == PORTAAVIAO_ID) {
            portaAvioes();
-        } else if (embarc == ENCOURACADO) {
+        } else if (embarc == ENCOURACADO_ID) {
            encouracado();
-        } else if (embarc == FRAGATA) {
+        } else if (embarc == FRAGATA_ID) {
             fragata();
-        } else if (embarc == SUBMARINO) {
+        } else if (embarc == SUBMARINO_ID) {
             submarino();
-        } else if (embarc == LANCHA) {
+        } else if (embarc == LANCHA_ID) {
             lancha();
         } else {
             finalize();
@@ -46,35 +46,35 @@ public class EmbarcacaoImpl implements Embarcacao {
     private void portaAvioes() {
         this.id = PORTAAVIAO_ID;
         this.nome = NOMES[id];
-        this.tamanho = 5;
+        this.tamanho = PORTAAVIAO_TAMANHO;
         this.posicao = new boolean[tamanho];
     }
     
     private void encouracado() {
         this.id = ENCOURACADO_ID;
         this.nome = NOMES[id];
-        this.tamanho = 4;
+        this.tamanho = ENCOURACADO_TAMANHO;
         this.posicao = new boolean[tamanho];
     }
     
     private void fragata(){
         this.id = FRAGATA_ID;
         this.nome = NOMES[id];
-        this.tamanho = 3;
+        this.tamanho = FRAGATA_TAMANHO;
         this.posicao = new boolean[tamanho];
     }
     
     private void submarino(){
         this.id = SUBMARINO_ID;
         this.nome = NOMES[id];
-        this.tamanho = 2;
+        this.tamanho = SUBMARINO_TAMANHO;
         this.posicao = new boolean[tamanho];
     }
     
     private void lancha(){
         this.id = LANCHA_ID;
-        this.nome = NOMES[id];
-        this.tamanho = 1;
+        this.nome = NOMES[this.id];
+        this.tamanho = LANCHA_TAMANHO;
         this.posicao = new boolean[tamanho];
     }
 
@@ -85,15 +85,15 @@ public class EmbarcacaoImpl implements Embarcacao {
     
     public static String getNomeEmbarcacoes(int embarc) {
         if (embarc == PORTAAVIAO_ID) {
-           return EmbarcacaoImpl.NOMES[PORTAAVIAO_ID-1];
+           return EmbarcacaoImpl.NOMES[PORTAAVIAO_ID];
         } else if (embarc == ENCOURACADO_ID) {
-           return EmbarcacaoImpl.NOMES[ENCOURACADO_ID-1];
+           return EmbarcacaoImpl.NOMES[ENCOURACADO_ID];
         } else if (embarc == FRAGATA_ID) {
-            return EmbarcacaoImpl.NOMES[FRAGATA_ID-1];
+            return EmbarcacaoImpl.NOMES[FRAGATA_ID];
         } else if (embarc == SUBMARINO_ID) {
-            return EmbarcacaoImpl.NOMES[SUBMARINO_ID-1];
+            return EmbarcacaoImpl.NOMES[SUBMARINO_ID];
         } else if (embarc == LANCHA_ID) {
-            return EmbarcacaoImpl.NOMES[LANCHA_ID-1];
+            return EmbarcacaoImpl.NOMES[LANCHA_ID];
         } else {
             return "Unknow";
         }
@@ -122,8 +122,13 @@ public class EmbarcacaoImpl implements Embarcacao {
                 ativo = INDISPONIVEL;
                 return 100;
             }
-            return 100*(1/(tamanho*2));
+            return PONTUACAO_MAXIMA/(tamanho*2);
         }
+    }
+    
+    @Override
+    public void desativar() {
+        this.ativo = false;
     }
     
     @Override
@@ -134,5 +139,7 @@ public class EmbarcacaoImpl implements Embarcacao {
     public boolean isAtivo() {
         return this.ativo;
     }
+    
+    
     
 }

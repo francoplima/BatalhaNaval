@@ -1,8 +1,13 @@
 /*
  Classe tabuleiro, servira para atualizar a tela game
  */
-package Domain;
+package Service;
 
+import Domain.Embarcacao;
+import Domain.EmbarcacaoImpl;
+import Domain.Jogador;
+import Domain.JogadorImpl;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -10,47 +15,61 @@ import java.util.Random;
  *
  * @author Franco_2
  */
-public class Tabuleiro {
-    public static final int AGUA = -1;
-    public static final int ERRO = -2;
-    public static final int LINHAS=10, COLUNAS=10;
+public class TabuleiroService implements Tabuleiro {
     
     private EmbarcacaoImpl matriz[][];
     private ArrayList<Embarcacao> embarcacoes;
     private Jogador jogador1;
     private Jogador jogador2;
+   
     
-    public Tabuleiro() throws Throwable {
+    public TabuleiroService() throws Throwable {
         preencheMatriz();
-        imprime2();
+        imprime();
     }
     
-    public Tabuleiro(String nome, String ip) throws Throwable{
+    public TabuleiroService(String nome) throws Throwable{
         matriz = new EmbarcacaoImpl[LINHAS][COLUNAS];
         embarcacoes = new ArrayList<>();
         //imprime(setFrota());
         preencheMatriz();
-        imprime2();
-        jogador1 = new Jogador(nome, ip);
+        imprime();
+        jogador1 = new JogadorImpl(nome, InetAddress.getLocalHost().getHostAddress());
+        jogador2 = new JogadorImpl("bot", "");
     }//chamada de teste
     
+    @Override
     public int[] embarcacoesRestantes(){
         int[] numeroEmbarcacoes = new int[Embarcacao.EMBARCACOES_DIFERENTES];
         for (Embarcacao a : embarcacoes) {
             if (a.isAtivo()) {
-                numeroEmbarcacoes[a.getId()-1]+=1;
+                numeroEmbarcacoes[a.getId()]+=1;
             }
         }
         return numeroEmbarcacoes;
     }
 
-    public int acertaBarco(int linha, int coluna) {
+    /**
+     *
+     * @param linha linha da matriz do jogo
+     * @param coluna coluna da matriz do jogo
+     * @param jogador jogador que está fazendo a jogada
+     * @return valor que representa a posição da embarcação de acerto, ou água
+     */
+    @Override
+    public int acertaBarco(int linha, int coluna, boolean jogador) {
         if (this.matriz[linha][coluna] == null) {
             return AGUA;
+        } else if(! this.matriz[linha][coluna].isAtivo()){
+            return NADA;
         } else {
             int posAcerto = posicaoDoAcerto(linha, coluna);
             int pontosObtidos = this.matriz[linha][coluna].acertaPosicao(posAcerto);
-            jogador1.somarPontos(pontosObtidos);
+            if (jogador) {
+                jogador1.somarPontos(pontosObtidos);
+            } else {
+                jogador2.somarPontos(pontosObtidos);
+            }
             return posAcerto+1;
         }
     }
@@ -58,14 +77,13 @@ public class Tabuleiro {
     private int posicaoDoAcerto(int linha, int coluna) {
         final int cod = this.matriz[linha][coluna].getId();
         final int tamEmbarc = this.matriz[linha][coluna].getTamanho();
-        int posIni = -1, posFim = 0;
+        int posIni = -1;
         for (int a=0; a<COLUNAS; a++) {
             if (this.matriz[linha][a] != null) {
                 if (this.matriz[linha][a].getId() == cod) {
                     if(posIni == -1) {
                         posIni = a;
                         a = COLUNAS;
-                        
                     }
                 }
             }
@@ -75,7 +93,7 @@ public class Tabuleiro {
     
     
     
-    private void imprime2() {
+    private void imprime() {
         System.out.println("Matriz");
         for (int i=0;i<10;i++){ 
             System.out.print(i+ " ");
@@ -90,19 +108,11 @@ public class Tabuleiro {
         }   
     }
     
-    public void imprime(int x[][]){
-        //mock method
-        for (int j=0;j<10;j++){
-            for (int i=0;i<10;i++){
-                System.out.print ( x[i][j]);  
-            }      
-            System.out.print ("\n");
-        }   
-    }//imprime matriz
     
     /**
      * O método recebe como parâmetro o número máximo que deve ser retornado de modo randômico.
      */
+    @Override
     public int sorteia(int max) {
         Random rand = new Random();
         if (max == 1) {
@@ -110,7 +120,7 @@ public class Tabuleiro {
         }
         int r = rand.nextInt(max);
         if (r < 0) {
-            return r*-1;
+            return r*(-1);
         }
         return r;
     }//retorna numero randomico intervalo i
@@ -147,9 +157,9 @@ public class Tabuleiro {
     private void preencheMatriz() throws Throwable {
         int[] controle = Embarcacao.NUMERO_EMBARCACOES;
         int totalEmbarcacoes = Embarcacao.TOTAL_EMBARCACOES;
-        
+    
         int a=0, coluna=0, linha=0, embarc;
-        while (a < totalEmbarcacoes) {
+        while (totalEmbarcacoes > 0) {
             embarc = sorteia(EmbarcacaoImpl.EMBARCACOES_DIFERENTES);
             if (embarc == Embarcacao.PORTAAVIAO_ID && controle[0] != 0) {
                 controle[0]--;
@@ -167,134 +177,82 @@ public class Tabuleiro {
                 controle[4]--;
                 embarcacoes.add(setEmbarcacao(new EmbarcacaoImpl(Embarcacao.LANCHA_ID)));
             }
-            a++;
+            totalEmbarcacoes--;
         } 
     }
+    
+    /**
+     * Retorno do método.
+     * @return  O método retorna um vetor de String com valores representando as posições acertadas e o valor do campo.<br>
+     * O padrão da String é "linha_coluna_valorDoCampo".
+     */
+    @Override
+    public ArrayList<String> getJogadasJogador2(int tentativas) {
+        int linha = sorteia(Tabuleiro.LINHAS);
+        int coluna = sorteia(Tabuleiro.COLUNAS);
+        
+        ArrayList<String> acertos = new ArrayList<>();
+        
+        while (tentativas > 0) {
+            int valorAcerto = acertaBarco(linha, coluna, false);
+            
+            int maiorEmbarcacao=0;
+            
+            for (int a=0; a<Embarcacao.NUMERO_EMBARCACOES.length; a++) {
+                if (maiorEmbarcacao < Embarcacao.NUMERO_EMBARCACOES[a]) {
+                    maiorEmbarcacao = Embarcacao.NUMERO_EMBARCACOES[a];
+                }
+            }
+            
+            if (valorAcerto == Tabuleiro.AGUA) {
+                acertos.add(new String(linha+"_"+coluna+"_"+"A"));
+                tentativas--;
+            } else {
+                acertos.add(new String(linha+"_"+coluna+"_"+valorAcerto));
+                boolean logicando = true;
+                int valor;
+                while(logicando) {
+                    if (valorAcerto != 1) {
+                        coluna-=valorAcerto-1;
+                        valorAcerto = acertaBarco(linha, coluna, false);
+                        acertos.add(new String(linha+"_"+coluna+"_"+valorAcerto));
+                        if (valorAcerto == Tabuleiro.AGUA) {
+                            logicando = false;
+                        }
+                        tentativas--;
+                    }
+                }
+            }
+        }
+        return acertos;
+    }
+    
     
     public static String getEmbarcacoesNome(int cod) {
         return EmbarcacaoImpl.getNomeEmbarcacoes(cod);
     }
     
-    public int[][] setFrota() throws Throwable {
-        int tab[][] = new int[10][10];
-        int count;
-        int i,j;
-        
-        
-        
-        //setando  1 porta-aviões
-        i = sorteia(5);
-        j = sorteia(9);
-            for(int x =i;x<=(i+5);x++){
-                tab[x][j]=5;            
-            }
-        
-        
-        //setando 2 encouraçados
-        count = 0;
-        while(count<2){
-        i = sorteia(6);
-        j = sorteia(9);
-        if(tab[i][j]==0){
-            for(int y =i;y<(i+4);y++){
-                if (tab[i][j]!=0){
-                    if(count!=0){
-                        count--;
-                    }
-                    break;
-                }
-            }
-            for(int x =i;x<(i+4);x++){
-                tab[x][j]=4;
-                
-            }
-            count++;
-        }
-        }
-    
-         //setando 3 fragatas
-        count = 0;
-        while(count<3){
-        i = sorteia(7);
-        j = sorteia(9);
-        if(tab[i][j]==0){
-            for(int y =i;y<(i+3);y++){
-                if (tab[i][j]!=0){
-                    if(count!=0){
-                        count--;
-                    }
-                    break;
-                }
-            }
-            for(int x =i;x<(i+3);x++){
-                tab[x][j]=3;
-            }
-           count++; 
-        }
-        }
-        
-         //setando 4 submarinos
-        count = 0;
-        while(count<4){
-        i = sorteia(8);
-        j = sorteia(9);
-        if(tab[i][j]==0){
-            for(int y =i;y<(i+2);y++){
-                if (tab[i][j]!=0){
-                    if(count!=0){
-                        count--;
-                    }
-                    break;
-                }
-            }
-            for(int x =i;x<(i+2);x++){
-                tab[x][j]=2;
-            }
-           count++; 
-        }
-        }
-        
-         //setando 5 lanchas
-        count = 0;
-        while(count<5){
-        i = sorteia(9);
-        j = sorteia(9);
-        if(tab[i][j]==0){
-            for(int y =i;y<(i+1);y++){
-                if (tab[i][j]!=0){
-                    if(count!=0){
-                        count--;
-                    }
-                    break;
-                }
-            }
-            for(int x =i;x<(i+1);x++){
-                tab[x][j]=1;
-                
-            }
-            count++;
-        }
-        }
-              
-        return tab;
-    }
-    
-    
+    @Override
     public int pontosJogador1() {
         return jogador1.getPontuacao();
     }
+    @Override
     public int pontosJogador2() {
         return jogador2.getPontuacao();
     }
+    @Override
     public String getNomeJogador1() {
         return jogador1.getNome();
     }
+    @Override
     public String getNomeJogador2() {
         return jogador2.getNome();
     }
+    @Override
     public String getIpJogador1() {
         return jogador1.getIp();
     }
+    @Override
     public String getIpJogador2() {
         return jogador2.getIp();
     }

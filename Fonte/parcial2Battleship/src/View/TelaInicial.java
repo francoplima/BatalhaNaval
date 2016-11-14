@@ -1,48 +1,45 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package View;
 
 import Domain.Embarcacao;
-import Domain.Tabuleiro;
+import Service.Tabuleiro;
+import Service.TabuleiroService;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author guilh
- */
 public class TelaInicial extends javax.swing.JFrame {
     private static final int SINGLEPLAYER = 1;
     private static final int MULTIPLAYER = 2;
+    private static final int TENTATIVAS_TOTAL = 5;
     
     private JButton buttons[][];
+    private ArrayList<JButton> allButtons;
     private Tabuleiro tabuleiro;
     private final int linhas=10, colunas=10, typeJogo;
-    private int jogadas=0;
+    private int rodada=1, tentativas = TelaInicial.TENTATIVAS_TOTAL;
     
     public TelaInicial(int typeJogo) throws Throwable {
         initComponents();
         
         this.typeJogo = typeJogo;
+        allButtons = new ArrayList<>();
         
-        embarc1.setText(Tabuleiro.getEmbarcacoesNome(Embarcacao.ENCOURACADO_ID));
-        embarc2.setText(Tabuleiro.getEmbarcacoesNome(Embarcacao.FRAGATA_ID));
-        embarc3.setText(Tabuleiro.getEmbarcacoesNome(Embarcacao.LANCHA_ID));
-        embarc4.setText(Tabuleiro.getEmbarcacoesNome(Embarcacao.PORTAAVIAO_ID));
-        embarc5.setText(Tabuleiro.getEmbarcacoesNome(Embarcacao.SUBMARINO_ID));
+        embarc1.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.ENCOURACADO_ID));
+        embarc2.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.FRAGATA_ID));
+        embarc3.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.LANCHA_ID));
+        embarc4.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.PORTAAVIAO_ID));
+        embarc5.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.SUBMARINO_ID));
         
         String nome = JOptionPane.showInputDialog(null, "Entre com seu nome");
-        tabuleiro = new Tabuleiro(nome, "");
+        tabuleiro = new TabuleiroService(nome);
         
         nomeJogador1.setText(tabuleiro.getNomeJogador1());
+        nomeJogador2.setText(tabuleiro.getNomeJogador2());
         atualizaDados();
         if (typeJogo == SINGLEPLAYER) {
             multiUsuarioOnline.removeAll();
@@ -59,6 +56,7 @@ public class TelaInicial extends javax.swing.JFrame {
                 buttons[i][j].setSize(20, 30);
                 buttons[i][j].addMouseListener(listener);
                 matriz.add(buttons[i][j]);
+                allButtons.add(buttons[i][j]);
             }
         }
     }
@@ -81,9 +79,7 @@ public class TelaInicial extends javax.swing.JFrame {
     
     public void atualizaPontuacao() {
         pontosJogador1.setText(String.valueOf(tabuleiro.pontosJogador1()));
-        if (typeJogo == MULTIPLAYER) {
-            pontosJogador2.setText(String.valueOf(tabuleiro.pontosJogador2()));
-        }
+        pontosJogador2.setText(String.valueOf(tabuleiro.pontosJogador2()));
     }
     
     public void atualizaEmbarcacoes() {
@@ -95,23 +91,48 @@ public class TelaInicial extends javax.swing.JFrame {
         totalEmbarc5.setText(String.valueOf(embarcacao[4]));
     }
     
-    public void atualizaDados() {
+    private void atualizaDados() {
         atualizaEmbarcacoes();
         atualizaPontuacao();
+        atualizaTentativas();
+        finalizaJogo();
+    }
+    
+    private void finalizaJogo() {
+        
+    }
+    
+    private void atualizaTentativas() {
+        tentativasRestantes.setText(String.valueOf(tentativas));
+    }
+    private void atribuirJogadas(ArrayList<String> jogadas) {
+        for (String a : jogadas) {
+            System.out.println(a);
+        }
     }
     
     MouseListener listener = new MouseListener() {
         @Override
         public void mouseClicked(MouseEvent e) {
-            jogadas++;
             JButton btn = (JButton) e.getComponent();
             if (btn.isEnabled()) {
                 int[] pos = getColunaELinha(btn.getName());
-                int result = tabuleiro.acertaBarco(pos[0], pos[1]);
-                if (result == Tabuleiro.AGUA) {
+                int result = 0;
+                
+                if ((rodada%2) == 1) {
+                    result = tabuleiro.acertaBarco(pos[0], pos[1], true);
+                } else {
+                    result = tabuleiro.acertaBarco(pos[0], pos[1], false);
+                }
+                tentativas--;
+                if (result == TabuleiroService.AGUA) {
                     btn.setText("A");
                 } else {
                     btn.setText(String.valueOf(result));
+                }
+                if (tentativas == 0) {
+                    rodada++;
+                    tentativas = TelaInicial.TENTATIVAS_TOTAL;
                 }
                 btn.setEnabled(false);
                 atualizaDados();
@@ -165,7 +186,7 @@ public class TelaInicial extends javax.swing.JFrame {
         totalEmbarc5 = new javax.swing.JTextField();
         jPanel8 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        tentativasRestantes = new javax.swing.JTextField();
         multiUsuarioOnline = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -499,7 +520,7 @@ public class TelaInicial extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel6.setText("Tentativas");
 
-        jTextField2.setEnabled(false);
+        tentativasRestantes.setEnabled(false);
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -509,7 +530,7 @@ public class TelaInicial extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(tentativasRestantes, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel8Layout.setVerticalGroup(
@@ -518,7 +539,7 @@ public class TelaInicial extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tentativasRestantes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -573,13 +594,10 @@ public class TelaInicial extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(matriz, javax.swing.GroupLayout.PREFERRED_SIZE, 667, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(27, 27, 27)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(matriz, javax.swing.GroupLayout.PREFERRED_SIZE, 667, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -629,7 +647,7 @@ public class TelaInicial extends javax.swing.JFrame {
     }//GEN-LAST:event_totalEmbarc1ActionPerformed
 
     private void menuMultiPlayerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuMultiPlayerActionPerformed
-
+        
     }//GEN-LAST:event_menuMultiPlayerActionPerformed
 
     /**
@@ -698,7 +716,6 @@ public class TelaInicial extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JPanel matriz;
     private javax.swing.JMenuItem menuMultiPlayer;
     private javax.swing.JPanel multiUsuarioOnline;
@@ -707,6 +724,7 @@ public class TelaInicial extends javax.swing.JFrame {
     private javax.swing.JPanel panelJogador2;
     private javax.swing.JTextField pontosJogador1;
     private javax.swing.JTextField pontosJogador2;
+    private javax.swing.JTextField tentativasRestantes;
     private javax.swing.JTextField totalEmbarc1;
     private javax.swing.JTextField totalEmbarc2;
     private javax.swing.JTextField totalEmbarc3;

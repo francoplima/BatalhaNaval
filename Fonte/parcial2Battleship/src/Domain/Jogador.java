@@ -1,43 +1,26 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package Domain;
 
 /**
  *
- * @author Franco_2
+ * @author guilh
  */
-public class Jogador {
-    private int id;
-    private String nome;
-    private String ip;
-    private int pontuacao;
-    
-    public Jogador(String nome, String ip) {
-        this.nome = nome;
-        this.ip = ip;
-    }
-    
-    public void somarPontos(int pontos) {
-        this.pontuacao += pontos;
-    }
+public interface Jogador {
 
-    public int getId() {
-        return id;
-    }
+    int getId();
 
-    public String getNome() {
-        return nome;
-    }
+    String getIp();
 
-    public String getIp() {
-        return ip;
-    }
+    String getNome();
 
-    public int getPontuacao() {
-        return pontuacao;
-    }
+    int getPontuacao();
 
-    public void setPontuacao(int pontuacao) {
-        this.pontuacao = pontuacao;
-    }
-    
+    void setPontuacao(int pontuacao);
+
+    void somarPontos(int pontos);
     
 }
