@@ -28,14 +28,14 @@ public class TabuleiroService implements Tabuleiro {
         imprime();
     }
     
-    public TabuleiroService(String nome) throws Throwable{
+    public TabuleiroService(String nomeJogador1, String nomeJogador2) throws Throwable{
         matriz = new EmbarcacaoImpl[LINHAS][COLUNAS];
         embarcacoes = new ArrayList<>();
         //imprime(setFrota());
         preencheMatriz();
         imprime();
-        jogador1 = new JogadorImpl(nome, InetAddress.getLocalHost().getHostAddress());
-        jogador2 = new JogadorImpl("bot", "");
+        jogador1 = new JogadorImpl(nomeJogador1, InetAddress.getLocalHost().getHostAddress());
+        jogador2 = new JogadorImpl(nomeJogador2, InetAddress.getLocalHost().getHostAddress());
     }//chamada de teste
     
     @Override
@@ -48,6 +48,29 @@ public class TabuleiroService implements Tabuleiro {
         }
         return numeroEmbarcacoes;
     }
+    
+    @Override
+    public int numeroEmbarcacoesRestantes() {
+        int[] cadaEmbarcacaoRestante = embarcacoesRestantes();
+        int resultado = -0;
+        for (int a=0; a<cadaEmbarcacaoRestante.length; a++) {
+            resultado += cadaEmbarcacaoRestante[a];
+        }
+        return resultado;
+    }
+    
+    @Override
+    public Jogador vencedor() {
+        if (numeroEmbarcacoesRestantes() == 0) {
+            if (jogador1.getPontuacao() > jogador2.getPontuacao()) {
+                return jogador1;
+            } else {
+                return jogador2;
+            }
+        } else {
+            return null;
+        }
+    }
 
     /**
      *
@@ -57,7 +80,7 @@ public class TabuleiroService implements Tabuleiro {
      * @return valor que representa a posição da embarcação de acerto, ou água
      */
     @Override
-    public int acertaBarco(int linha, int coluna, boolean jogador) {
+    public int acertaBarco(int linha, int coluna, boolean jogador) throws ArrayIndexOutOfBoundsException {
         if (this.matriz[linha][coluna] == null) {
             return AGUA;
         } else if(! this.matriz[linha][coluna].isAtivo()){
@@ -75,8 +98,8 @@ public class TabuleiroService implements Tabuleiro {
     }
     
     private int posicaoDoAcerto(int linha, int coluna) {
-        final int cod = this.matriz[linha][coluna].getId();
-        final int tamEmbarc = this.matriz[linha][coluna].getTamanho();
+        final int cod = matriz[linha][coluna].getId();
+        final int tamEmbarc = matriz[linha][coluna].getTamanho();
         int posIni = -1;
         for (int a=0; a<COLUNAS; a++) {
             if (this.matriz[linha][a] != null) {
@@ -188,43 +211,7 @@ public class TabuleiroService implements Tabuleiro {
      */
     @Override
     public ArrayList<String> getJogadasJogador2(int tentativas) {
-        int linha = sorteia(Tabuleiro.LINHAS);
-        int coluna = sorteia(Tabuleiro.COLUNAS);
-        
-        ArrayList<String> acertos = new ArrayList<>();
-        
-        while (tentativas > 0) {
-            int valorAcerto = acertaBarco(linha, coluna, false);
-            
-            int maiorEmbarcacao=0;
-            
-            for (int a=0; a<Embarcacao.NUMERO_EMBARCACOES.length; a++) {
-                if (maiorEmbarcacao < Embarcacao.NUMERO_EMBARCACOES[a]) {
-                    maiorEmbarcacao = Embarcacao.NUMERO_EMBARCACOES[a];
-                }
-            }
-            
-            if (valorAcerto == Tabuleiro.AGUA) {
-                acertos.add(new String(linha+"_"+coluna+"_"+"A"));
-                tentativas--;
-            } else {
-                acertos.add(new String(linha+"_"+coluna+"_"+valorAcerto));
-                boolean logicando = true;
-                int valor;
-                while(logicando) {
-                    if (valorAcerto != 1) {
-                        coluna-=valorAcerto-1;
-                        valorAcerto = acertaBarco(linha, coluna, false);
-                        acertos.add(new String(linha+"_"+coluna+"_"+valorAcerto));
-                        if (valorAcerto == Tabuleiro.AGUA) {
-                            logicando = false;
-                        }
-                        tentativas--;
-                    }
-                }
-            }
-        }
-        return acertos;
+        return null;
     }
     
     

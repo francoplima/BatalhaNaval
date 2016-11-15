@@ -5,12 +5,10 @@ import org.apache.xmlrpc.*;
 
 public class Server {
     public static void main(String[] args) throws IOException {
-        int port = 8080;
-        
-        WebServer server = new WebServer(port);
-        System.out.println("Iniciando servidor na porta: " + port);
-        server.addHandler("Server", new ServerService(port));
-        System.out.println("Adicionando serviço " + "Server");
+        WebServer server = new WebServer(ServerService.SERVER_PORT);
+        System.out.println("Iniciando servidor na porta: " + ServerService.SERVER_PORT);
+        server.addHandler(ServerService.SERVER_NAME, new ServerService());
+        System.out.println("Adicionando serviço " + ServerService.SERVER_NAME);
         server.setParanoid(false);
     }
 }

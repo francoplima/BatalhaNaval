@@ -37,7 +37,7 @@ public interface Embarcacao {
     
     public static final int PONTUACAO_MAXIMA = 100;
 
-    public int acertaPosicao(int pos);
+    public int acertaPosicao(int pos) throws ArrayIndexOutOfBoundsException;
     public int getId();
     public String getNome();
     public int getTamanho();

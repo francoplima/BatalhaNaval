@@ -1,5 +1,6 @@
 package Service;
 
+import Domain.Jogador;
 import java.util.ArrayList;
 
 /**
@@ -22,12 +23,14 @@ public interface Tabuleiro {
      */
     int acertaBarco(int linha, int coluna, boolean jogador);
     int[] embarcacoesRestantes();
+    int numeroEmbarcacoesRestantes();
     String getIpJogador1();
     String getIpJogador2();
     String getNomeJogador1();
     String getNomeJogador2();
     int pontosJogador1();
     int pontosJogador2();
+    Jogador vencedor();
     /**
      * O método recebe como parâmetro o número máximo que deve ser retornado de modo randômico.
      */

@@ -9,15 +9,12 @@ import javax.swing.JOptionPane;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 
-public class ServerService {
+public class Cliente {
     public static final String SERVER_NAME = "parcial2";
-    public static final int SERVER_PORT = 8080;
+    public static final String SERVER_PORT = ":8080/";
     public static String SERVER_URL = "http://";
     
-    public ServerService() {
-    }
-    
-    static Object invoke(String serverUrl, Vector params, String operation) {
+    public Object invoke(String serverUrl, Vector params, String operation) {
         XmlRpcClient xmlrpc;
         Object result = null;
         try {
@@ -33,14 +30,6 @@ public class ServerService {
         return result;
     }
     
-    private void chamarPingRemoto() throws MalformedURLException, XmlRpcException, IOException {
-        Vector params = new Vector();
-        params.addElement("ping");
-        Object result = invoke(SERVER_URL, params, "ping.responder");
-        System.out.println("Do Servidor: " + result);
-    }
-    
-    
     public boolean desafiarJogador(String nomeDesafiante, String ipDesafiado) 
             throws MalformedURLException, XmlRpcException, IOException {
         Vector params = new Vector();
@@ -49,11 +38,12 @@ public class ServerService {
         params.addElement(ipDesafiado);
         String url = SERVER_URL+ipDesafiado+SERVER_PORT+SERVER_NAME;
         Object resultado = invoke(url, params, SERVER_NAME+".desafiando");
-        System.out.println("resultado");
+        System.out.println(resultado);
         return Boolean.valueOf(resultado.toString()).booleanValue();
     }
     
-    public boolean desafiando(String nome, String ip) {
+    public boolean desafiando(String nome, String ip) 
+            throws MalformedURLException, XmlRpcException, IOException {
         String input = JOptionPane.showInputDialog(null, "O jogador " + nome + " está de desafiando para um jogo", "", JOptionPane.YES_NO_OPTION);
         if (input.equals(JOptionPane.YES_OPTION)) {
             return true;
@@ -69,7 +59,7 @@ public class ServerService {
     }
     
     public static void main(String[] args) {
-        ServerService ss = new ServerService();
+        Cliente ss = new Cliente();
         try {
             if (ss.desafiarJogador("Guilherme", "127.0.0.1")) {
                 JOptionPane.showMessageDialog(null, "Desafio Ace");

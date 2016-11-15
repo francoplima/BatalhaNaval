@@ -5,6 +5,8 @@
  */
 package Domain;
 
+import java.rmi.Remote;
+
 /**
  *
  * @author guilh
@@ -12,15 +14,10 @@ package Domain;
 public interface Jogador {
 
     int getId();
-
     String getIp();
-
     String getNome();
-
     int getPontuacao();
-
     void setPontuacao(int pontuacao);
-
     void somarPontos(int pontos);
     
 }

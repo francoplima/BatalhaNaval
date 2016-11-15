@@ -105,7 +105,7 @@ public class EmbarcacaoImpl implements Embarcacao {
     }
 
     @Override
-    public int acertaPosicao(int pos) {
+    public int acertaPosicao(int pos) throws ArrayIndexOutOfBoundsException {
         if (ativo == INDISPONIVEL) {
             return 0;
         } else {
