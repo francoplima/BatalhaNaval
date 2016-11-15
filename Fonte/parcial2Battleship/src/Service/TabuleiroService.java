@@ -24,6 +24,8 @@ public class TabuleiroService implements Tabuleiro {
    
     
     public TabuleiroService() throws Throwable {
+        matriz = new EmbarcacaoImpl[LINHAS][COLUNAS];
+        embarcacoes = new ArrayList<>();
         preencheMatriz();
         imprime();
     }
@@ -31,12 +33,20 @@ public class TabuleiroService implements Tabuleiro {
     public TabuleiroService(String nomeJogador1, String nomeJogador2) throws Throwable{
         matriz = new EmbarcacaoImpl[LINHAS][COLUNAS];
         embarcacoes = new ArrayList<>();
-        //imprime(setFrota());
         preencheMatriz();
         imprime();
         jogador1 = new JogadorImpl(nomeJogador1, InetAddress.getLocalHost().getHostAddress());
         jogador2 = new JogadorImpl(nomeJogador2, InetAddress.getLocalHost().getHostAddress());
-    }//chamada de teste
+    }
+    
+    @Override
+    public void createJogador(String nome) throws Throwable {
+        if (jogador1 == null) {
+            jogador1 = new JogadorImpl(nome, InetAddress.getLocalHost().getHostAddress());
+        } else {
+            jogador2 = new JogadorImpl(nome, InetAddress.getLocalHost().getHostAddress());
+        }
+    }
     
     @Override
     public int[] embarcacoesRestantes(){
@@ -98,12 +108,12 @@ public class TabuleiroService implements Tabuleiro {
     }
     
     private int posicaoDoAcerto(int linha, int coluna) {
-        final int cod = matriz[linha][coluna].getId();
+        Embarcacao embarc = matriz[linha][coluna];
         final int tamEmbarc = matriz[linha][coluna].getTamanho();
         int posIni = -1;
         for (int a=0; a<COLUNAS; a++) {
             if (this.matriz[linha][a] != null) {
-                if (this.matriz[linha][a].getId() == cod) {
+                if (this.matriz[linha][a] == embarc) {
                     if(posIni == -1) {
                         posIni = a;
                         a = COLUNAS;

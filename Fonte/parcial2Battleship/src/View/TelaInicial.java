@@ -22,13 +22,12 @@ public class TelaInicial extends javax.swing.JFrame {
     private JButton buttons[][];
     private ArrayList<JButton> allButtons;
     private Tabuleiro tabuleiro;
-    private final int linhas=10, colunas=10, typeJogo;
+    private final int linhas=10, colunas=10;
     private int rodada=1, tentativas = TelaInicial.TENTATIVAS_TOTAL;
     
-    public TelaInicial(int typeJogo) throws Throwable {
+    public TelaInicial() throws Throwable {
         initComponents();
         
-        this.typeJogo = typeJogo;
         allButtons = new ArrayList<>();
         
         embarc1.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.ENCOURACADO_ID));
@@ -37,16 +36,7 @@ public class TelaInicial extends javax.swing.JFrame {
         embarc4.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.PORTAAVIAO_ID));
         embarc5.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.SUBMARINO_ID));
         
-        String jogador1 = JOptionPane.showInputDialog(null, "Entre com seu nome", "Jogador 1", JOptionPane.QUESTION_MESSAGE);
-        String jogador2 = JOptionPane.showInputDialog(null, "Entre com seu nome", "Jogador 2", JOptionPane.QUESTION_MESSAGE);
-        tabuleiro = new TabuleiroService(jogador1, jogador2);
-        
-        nomeJogador1.setText(tabuleiro.getNomeJogador1());
-        nomeJogador2.setText(tabuleiro.getNomeJogador2());
-        atualizaDados();
-        if (typeJogo == SINGLEPLAYER) {
-            multiUsuarioOnline.removeAll();
-        }
+        tabuleiro = new TabuleiroService();
         
         buttons = new JButton[linhas][colunas];
         GridLayout g = new GridLayout(10, 10, 0, 0);
@@ -62,6 +52,17 @@ public class TelaInicial extends javax.swing.JFrame {
                 allButtons.add(buttons[i][j]);
             }
         }
+        obterJogadores();
+        nomeJogador1.setText(tabuleiro.getNomeJogador1());
+        nomeJogador2.setText(tabuleiro.getNomeJogador2());
+        atualizaDados();
+    }
+    
+    private void obterJogadores()  throws Throwable {
+        String jogador1 = JOptionPane.showInputDialog(null, "Entre com seu nome", "Jogador 1", JOptionPane.QUESTION_MESSAGE);
+        String jogador2 = JOptionPane.showInputDialog(null, "Entre com seu nome", "Jogador 2", JOptionPane.QUESTION_MESSAGE);
+        tabuleiro.createJogador(jogador1);
+        tabuleiro.createJogador(jogador2);
     }
     /**
      * Este método retorna um vetor de duas posições no padrão {linha, coluna}.
@@ -70,7 +71,6 @@ public class TelaInicial extends javax.swing.JFrame {
      */
     private int[] getColunaELinha(String t) {
         int result[] = new int[2];
-        System.out.println(t.substring(0, 1) + " " + t.substring(2, 3));
         try {
             result[0] = Integer.parseInt(t.substring(0, 1));
             result[1] = Integer.parseInt(t.substring(2, 3));
@@ -94,7 +94,7 @@ public class TelaInicial extends javax.swing.JFrame {
         totalEmbarc5.setText(String.valueOf(embarcacao[4]));
     }
     
-    private void atualizaDados() {
+    private void atualizaDados() throws Throwable {
         atualizaEmbarcacoes();
         atualizaPontuacao();
         atualizaTentativas();
@@ -108,16 +108,16 @@ public class TelaInicial extends javax.swing.JFrame {
         finalizaJogo();
     }
     
-    private void finalizaJogo() {
+    private void finalizaJogo() throws Throwable {
         Jogador vencedor = tabuleiro.vencedor();
         if (vencedor != null) {
             apresentaVencedor(vencedor);
         }
     }
     
-    private void apresentaVencedor(Jogador vencedor) {
+    private void apresentaVencedor(Jogador vencedor) throws Throwable {
         JOptionPane.showMessageDialog(null, "O vencedor da rodada é " + vencedor.getNome(), "Vencedor", JOptionPane.INFORMATION_MESSAGE);
-        TelaInicial.main(new String[2]);
+        new TelaInicial();
     }
     
     private void atualizaTentativas() {
@@ -153,7 +153,11 @@ public class TelaInicial extends javax.swing.JFrame {
                     tentativas = TelaInicial.TENTATIVAS_TOTAL;
                 }
                 btn.setEnabled(false);
-                atualizaDados();
+                try {
+                    atualizaDados();
+                } catch (Throwable ex) {
+                    Logger.getLogger(TelaInicial.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
         @Override
@@ -205,9 +209,6 @@ public class TelaInicial extends javax.swing.JFrame {
         jPanel8 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         tentativasRestantes = new javax.swing.JTextField();
-        multiUsuarioOnline = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -556,32 +557,6 @@ public class TelaInicial extends javax.swing.JFrame {
             .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        jButton1.setBackground(new java.awt.Color(51, 255, 51));
-
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel1.setText("Online");
-
-        javax.swing.GroupLayout multiUsuarioOnlineLayout = new javax.swing.GroupLayout(multiUsuarioOnline);
-        multiUsuarioOnline.setLayout(multiUsuarioOnlineLayout);
-        multiUsuarioOnlineLayout.setHorizontalGroup(
-            multiUsuarioOnlineLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(multiUsuarioOnlineLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        multiUsuarioOnlineLayout.setVerticalGroup(
-            multiUsuarioOnlineLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, multiUsuarioOnlineLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(multiUsuarioOnlineLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-
         jMenu1.setText("Nova Partida");
 
         jMenuItem1.setText("Single Player");
@@ -614,8 +589,7 @@ public class TelaInicial extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(multiUsuarioOnline, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -624,8 +598,6 @@ public class TelaInicial extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(multiUsuarioOnline, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, Short.MAX_VALUE)
                         .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, 0)
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -695,7 +667,7 @@ public class TelaInicial extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    new TelaInicial(SINGLEPLAYER).setVisible(true);
+                    new TelaInicial().setVisible(true);
                 } catch (Throwable ex) {
                     Logger.getLogger(TelaInicial.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -709,8 +681,6 @@ public class TelaInicial extends javax.swing.JFrame {
     private javax.swing.JLabel embarc3;
     private javax.swing.JLabel embarc4;
     private javax.swing.JLabel embarc5;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -730,7 +700,6 @@ public class TelaInicial extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JPanel matriz;
     private javax.swing.JMenuItem menuMultiPlayer;
-    private javax.swing.JPanel multiUsuarioOnline;
     private javax.swing.JLabel nomeJogador1;
     private javax.swing.JLabel nomeJogador2;
     private javax.swing.JPanel panelJogador1;
