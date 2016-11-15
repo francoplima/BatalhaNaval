@@ -23,6 +23,7 @@ public interface Tabuleiro {
      */
     int acertaBarco(int linha, int coluna, boolean jogador);
     int[] embarcacoesRestantes();
+    public void createJogador(String nome)  throws Throwable;
     int numeroEmbarcacoesRestantes();
     String getIpJogador1();
     String getIpJogador2();
