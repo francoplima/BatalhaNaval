@@ -170,8 +170,8 @@ public class TabuleiroService implements Tabuleiro {
     private Embarcacao setEmbarcacao(EmbarcacaoImpl emb) {
         int linha=0, coluna=0, controle = emb.getTamanho();
         boolean posOk = false;
-        linha = sorteia(10);
-        coluna = sorteia(10-emb.getTamanho());
+        linha = sorteia(LINHAS);
+        coluna = sorteia(COLUNAS-emb.getTamanho());
         posOk = posicoesValidas(linha, coluna, emb.getTamanho());
         do {
             if (posOk == false) {

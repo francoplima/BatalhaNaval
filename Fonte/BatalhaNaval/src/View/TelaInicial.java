@@ -32,11 +32,11 @@ public class TelaInicial extends javax.swing.JFrame {
         
         allButtons = new ArrayList<>();
         
-        embarc1.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.ENCOURACADO_ID));
-        embarc2.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.FRAGATA_ID));
-        embarc3.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.LANCHA_ID));
-        embarc4.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.PORTAAVIAO_ID));
-        embarc5.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.SUBMARINO_ID));
+        embarc1.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.PORTAAVIAO_ID));
+        embarc2.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.ENCOURACADO_ID));
+        embarc3.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.FRAGATA_ID));
+        embarc4.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.SUBMARINO_ID));
+        embarc5.setText(TabuleiroService.getEmbarcacoesNome(Embarcacao.LANCHA_ID));
         
         tabuleiro = new TabuleiroService();
         
